@@ -27,7 +27,7 @@ interface CourseStore {
 }
 
 // 🔹 API Base URL
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const API_URL = import.meta.env.VITE_API_URL || "https://fees-management-system-springboot-8.onrender.com/api";
 
 export const useCoursesStore = create<CourseStore>((set, get) => ({
   courses: [],
@@ -89,7 +89,6 @@ export const useCoursesStore = create<CourseStore>((set, get) => ({
         coursesCount: updatedCourses.length,
         totalFee: updatedTotal,
       });
-      toast.success("Course added successfully");
     } catch (err: any) {
       console.error("Error adding course:", err);
       toast.error(err?.response?.data?.message || "Failed to add course");
