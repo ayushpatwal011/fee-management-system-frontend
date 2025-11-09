@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useCoursesStore } from "./useCoursesStore";
 
-const API_URL = "https://fees-management-system-springboot-8.onrender.com/api" 
+const API_URL = "https://fees-management-system-springboot-8.onrender.com/api";
 
 export interface Student {
   studentId: number;
@@ -24,6 +24,7 @@ interface StudentStore {
   students: Student[];
   studentCount: number;
   totalPaidFee: number;
+  totalFee: number; // ✅ new
   loading: boolean;
 
   fetchStudents: () => Promise<void>;
@@ -36,6 +37,7 @@ export const useStudentStore = create<StudentStore>((set, get) => ({
   students: [],
   studentCount: 0,
   totalPaidFee: 0,
+  totalFee: 0, // ✅ added
   loading: false,
 
   // 🟢 Fetch all students
@@ -48,7 +50,7 @@ export const useStudentStore = create<StudentStore>((set, get) => ({
       // 🔹 Get all courses from course store
       const { courses } = useCoursesStore.getState();
 
-      // 🔹 Add courseName for each student
+      // 🔹 Attach course names
       data = data.map((student: Student) => {
         const course = courses.find((c) => c.courseId === student.courseId);
         return {
@@ -57,15 +59,40 @@ export const useStudentStore = create<StudentStore>((set, get) => ({
         };
       });
 
+      // 🔹 Total Paid Fees
       const totalPaidFee = data.reduce(
         (sum: number, s: Student) => sum + (s.paidFee || 0),
         0
       );
 
+      // 🔹 Calculate total course fees = Σ(course.feeAmount × number of students in it)
+      const courseFeeMap = new Map<number, { feeAmount: number; count: number }>();
+
+      // Count students per course
+      for (const s of data) {
+        const course = courses.find((c) => c.courseId === s.courseId);
+        if (course) {
+          if (!courseFeeMap.has(course.courseId)) {
+            courseFeeMap.set(course.courseId, { feeAmount: course.feeAmount, count: 1 });
+          } else {
+            const current = courseFeeMap.get(course.courseId)!;
+            current.count += 1;
+            courseFeeMap.set(course.courseId, current);
+          }
+        }
+      }
+
+      // Sum total fee
+      let totalFee = 0;
+      for (const [, value] of courseFeeMap.entries()) {
+        totalFee += value.feeAmount * value.count;
+      }
+
       set({
         students: data,
         studentCount: data.length,
         totalPaidFee,
+        totalFee, // ✅ updated correctly
         loading: false,
       });
     } catch (err: any) {
@@ -82,18 +109,22 @@ export const useStudentStore = create<StudentStore>((set, get) => ({
       const res = await axios.post(`${API_URL}/students`, data);
       let newStudent = res.data.data || res.data;
 
-      // Add course name using course store
       const { courses } = useCoursesStore.getState();
       const course = courses.find((c) => c.courseId === newStudent.courseId);
       newStudent.courseName = course ? course.courseName : "Unknown";
 
-      set((state) => ({
-        students: [...state.students, newStudent],
-        studentCount: state.studentCount + 1,
-        loading: false,
-      }));
+      set((state) => {
+        const updatedStudents = [...state.students, newStudent];
+        return {
+          students: updatedStudents,
+          studentCount: updatedStudents.length,
+          loading: false,
+        };
+      });
 
-      // toast.success("Student added successfully!");
+      toast.success("Student added successfully!");
+      // ✅ Refresh students to recalc totalFee correctly
+      get().fetchStudents();
     } catch (err: any) {
       set({ loading: false });
       console.error("Error adding student:", err);
@@ -109,49 +140,27 @@ export const useStudentStore = create<StudentStore>((set, get) => ({
       const updatedData = res.data.data || res.data;
 
       const { courses } = useCoursesStore.getState();
+      const course = courses.find((c) => c.courseId === updatedData.courseId);
+      const updatedStudent = {
+        ...updatedData,
+        courseName: course ? course.courseName : "Unknown",
+      };
 
-      if (Array.isArray(updatedData)) {
-        // Backend returned full list
-        const enriched = updatedData.map((s) => {
-          const course = courses.find((c) => c.courseId === s.courseId);
-          return { ...s, courseName: course ? course.courseName : "Unknown" };
-        });
+      set((state) => ({
+        students: state.students.map((s) =>
+          s.studentId === updatedStudent.studentId ? updatedStudent : s
+        ),
+        loading: false,
+      }));
 
-        const totalPaidFee = enriched.reduce(
-          (sum, s) => sum + (s.paidFee || 0),
-          0
-        );
-
-        set({
-          students: enriched,
-          studentCount: enriched.length,
-          totalPaidFee,
-          loading: false,
-        });
-      } else {
-        // Backend returned single student
-        const course = courses.find(
-          (c) => c.courseId === updatedData.courseId
-        );
-        const updatedStudent = {
-          ...updatedData,
-          courseName: course ? course.courseName : "Unknown",
-        };
-
-        set((state) => ({
-          students: state.students.map((s) =>
-            s.studentId === updatedStudent.studentId ? updatedStudent : s
-          ),
-          loading: false,
-        }));
-      }
+      // ✅ Refresh to keep totals accurate
+      get().fetchStudents();
 
       toast.success(res.data.message || "Student updated successfully!");
     } catch (error: any) {
       set({ loading: false });
       console.error("Update error:", error);
       toast.error(error?.response?.data?.message || "Failed to update student");
-      throw error;
     }
   },
 
@@ -173,6 +182,10 @@ export const useStudentStore = create<StudentStore>((set, get) => ({
         totalPaidFee,
         loading: false,
       });
+
+      // ✅ Recalculate total fees again
+      get().fetchStudents();
+
       toast.success("Student deleted successfully");
     } catch (err: any) {
       set({ loading: false });

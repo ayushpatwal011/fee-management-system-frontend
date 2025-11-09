@@ -17,17 +17,18 @@ import {
 } from "recharts";
 
 export default function Dashboard() {
-  const { coursesCount, totalFee } = useCoursesStore();
+  const { coursesCount } = useCoursesStore();
   const { studentCount, totalPaidFee } = useStudentStore();
   const { latestPayments, dailyFeesData } = usePaymentStore();
 
-  // 📊 Calculate pending & percentage
-  const pendingFee = Math.max(totalFee - totalPaidFee, 0);
+  const { calculateTotalWithStudents } = useCoursesStore();
+const totalSystemFee = calculateTotalWithStudents(); // ✅ correct grand total
+
 
 
   const feeDistribution = [
-    { name: "Paid Fees", value: totalPaidFee },
-    { name: "Pending Fees", value: pendingFee },
+    { name: "Paid Fees", value: totalSystemFee },
+    { name: "Pending Fees", value: totalPaidFee },
   ];
   const COLORS = ["#3791DB", "#3B3C42"]; // blue + red
 
@@ -60,7 +61,7 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Total Fees</CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-semibold">₹{totalFee}</CardContent>
+          <CardContent className="text-2xl font-semibold">₹{totalSystemFee}</CardContent>
         </Card>
 
         <Card>

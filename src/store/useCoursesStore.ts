@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useStudentStore } from "./useStudentStore";
 
 // 🔹 Course Type (same as backend)
 export interface Course {
@@ -16,7 +17,7 @@ export interface Course {
 interface CourseStore {
   courses: Course[];
   coursesCount: number;
-  totalFee: number;
+  totalFee: number; // total fee for all courses (not multiplied by students)
   loading: boolean;
 
   fetchCourses: () => Promise<void>;
@@ -24,9 +25,10 @@ interface CourseStore {
   addCourse: (data: Omit<Course, "courseId">) => Promise<void>;
   updateCourse: (id: number, data: Partial<Course>) => Promise<void>;
   deleteCourse: (id: number) => Promise<void>;
+  calculateTotalWithStudents: () => number; // ✅ NEW
 }
 
-const API_URL = "https://fees-management-system-springboot-8.onrender.com/api" 
+const API_URL = "https://fees-management-system-springboot-8.onrender.com/api";
 
 export const useCoursesStore = create<CourseStore>((set, get) => ({
   courses: [],
@@ -88,6 +90,7 @@ export const useCoursesStore = create<CourseStore>((set, get) => ({
         coursesCount: updatedCourses.length,
         totalFee: updatedTotal,
       });
+      toast.success("Course added successfully!");
     } catch (err: any) {
       console.error("Error adding course:", err);
       toast.error(err?.response?.data?.message || "Failed to add course");
@@ -134,5 +137,25 @@ export const useCoursesStore = create<CourseStore>((set, get) => ({
       console.error("Error deleting course:", err);
       toast.error(err?.response?.data?.message || "Failed to delete course");
     }
+  },
+
+  // ✅ NEW: Calculate total fee based on enrolled students
+  calculateTotalWithStudents: () => {
+    const { courses } = get();
+    const { students } = useStudentStore.getState();
+
+    const courseStudentCount: Record<number, number> = {};
+
+    students.forEach((s) => {
+      courseStudentCount[s.courseId] =
+        (courseStudentCount[s.courseId] || 0) + 1;
+    });
+
+    let total = 0;
+    for (const c of courses) {
+      total += (c.feeAmount || 0) * (courseStudentCount[c.courseId] || 0);
+    }
+
+    return total;
   },
 }));
