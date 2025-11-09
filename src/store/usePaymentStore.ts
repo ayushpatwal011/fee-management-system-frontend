@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { api } from "@/api";
 
 // 🔹 Payment type
 export interface Payment {
@@ -37,7 +36,7 @@ interface PaymentStore {
   getPaymentsByStudent: (studentId: number) => Promise<Payment[] | null>;
 }
 
- ;
+const API_URL = "https://fees-management-system-springboot-8.onrender.com/api" 
 
 // 🔹 Helper for safe date conversion
 const safeDate = (date?: string) => (date ? new Date(date) : new Date(0));
@@ -53,17 +52,17 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
   fetchPayments: async () => {
     try {
       set({ loading: true });
-      const res = await axios.get(`${ api}/payments`);
+      const res = await axios.get(`${API_URL}/payments`);
       const payments: Payment[] = res.data.data || [];
 
       // ✅ Enrich each payment with student & course info
       const enrichedPayments = await Promise.all(
         payments.map(async (p) => {
           try {
-            const studentRes = await axios.get(`${ api}/students/${p.studentId}`);
+            const studentRes = await axios.get(`${API_URL}/students/${p.studentId}`);
             const student = studentRes.data.data || studentRes.data;
 
-            const courseRes = await axios.get(`${ api}/courses/${student.courseId}`);
+            const courseRes = await axios.get(`${API_URL}/courses/${student.courseId}`);
             const course = courseRes.data.data || courseRes.data;
 
             const totalFee = course.feeAmount;
@@ -117,13 +116,13 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
   // 🔵 Get payments by student
   getPaymentsByStudent: async (studentId) => {
     try {
-      const res = await axios.get(`${ api}/payments/student/${studentId}`);
+      const res = await axios.get(`${API_URL}/payments/student/${studentId}`);
       const payments = res.data.data || [];
 
-      const studentRes = await axios.get(`${ api}/students/${studentId}`);
+      const studentRes = await axios.get(`${API_URL}/students/${studentId}`);
       const student = studentRes.data.data || studentRes.data;
 
-      const courseRes = await axios.get(`${ api}/courses/${student.courseId}`);
+      const courseRes = await axios.get(`${API_URL}/courses/${student.courseId}`);
       const course = courseRes.data.data || courseRes.data;
 
       return payments.map((p: Payment) => ({
@@ -143,14 +142,14 @@ export const usePaymentStore = create<PaymentStore>((set, get) => ({
   // 🟡 Create new payment
   createPayment: async (data) => {
     try {
-      const res = await axios.post(`${ api}/payments`, data);
+      const res = await axios.post(`${API_URL}/payments`, data);
       const newPayment: Payment = res.data.data || res.data;
 
       // ✅ Fetch related student & course info
-      const studentRes = await axios.get(`${ api}/students/${data.studentId}`);
+      const studentRes = await axios.get(`${API_URL}/students/${data.studentId}`);
       const student = studentRes.data.data || studentRes.data;
 
-      const courseRes = await axios.get(`${ api}/courses/${student.courseId}`);
+      const courseRes = await axios.get(`${API_URL}/courses/${student.courseId}`);
       const course = courseRes.data.data || courseRes.data;
 
       const paymentWithMeta: Payment = {

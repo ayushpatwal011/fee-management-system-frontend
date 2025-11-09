@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { api } from "@/api";
 
 interface Admin {
   id: number;
@@ -17,7 +16,7 @@ interface AdminStore {
   updateAdmin: (adminId: number, data: Partial<{ email: string; password: string }>) => Promise<void>;
 }
 
- 
+const API_URL = "https://fees-management-system-springboot-8.onrender.com/api" 
 
 export const useAdminStore = create<AdminStore>((set) => ({
   admin: JSON.parse(localStorage.getItem("admin") || "null"),
@@ -25,7 +24,7 @@ export const useAdminStore = create<AdminStore>((set) => ({
   // 🟢 Login
   login: async (email, password) => {
     try {
-      const res = await axios.post(`${ api}/admin/login`, { email, password });
+      const res = await axios.post(`${API_URL}/admin/login`, { email, password });
       const admin = res.data.data;  
 
       set({ admin });
@@ -50,7 +49,7 @@ export const useAdminStore = create<AdminStore>((set) => ({
   data: { email?: string; password?: string }
 ) => {
   try {
-    const res = await axios.put(`${ api}/admin/update/${adminId}`, data);
+    const res = await axios.put(`${API_URL}/admin/update/${adminId}`, data);
     const updatedAdmin = res.data.data;
 
     set({ admin: updatedAdmin });
