@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { api } from "@/api";
 
 interface Admin {
   id: number;
@@ -16,7 +17,7 @@ interface AdminStore {
   updateAdmin: (adminId: number, data: Partial<{ email: string; password: string }>) => Promise<void>;
 }
 
-const API_URL = import.meta.env.VITE_API_URL; 
+const API_URL = api
 
 export const useAdminStore = create<AdminStore>((set) => ({
   admin: JSON.parse(localStorage.getItem("admin") || "null"),

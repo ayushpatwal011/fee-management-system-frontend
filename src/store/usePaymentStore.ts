@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { api } from "@/api";
 
 // 🔹 Payment type
 export interface Payment {
@@ -36,7 +37,7 @@ interface PaymentStore {
   getPaymentsByStudent: (studentId: number) => Promise<Payment[] | null>;
 }
 
-const API_URL = import.meta.env.VITE_API_URL; // e.g. http://localhost:8080/api
+const API_URL = api;
 
 // 🔹 Helper for safe date conversion
 const safeDate = (date?: string) => (date ? new Date(date) : new Date(0));

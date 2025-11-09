@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { api } from "@/api";
 
 // 🔹 Course Type (same as backend)
 export interface Course {
@@ -27,7 +28,7 @@ interface CourseStore {
 }
 
 // 🔹 API Base URL
-const API_URL = import.meta.env.VITE_API_URL || "https://fees-management-system-springboot-8.onrender.com/api";
+const API_URL = api
 
 export const useCoursesStore = create<CourseStore>((set, get) => ({
   courses: [],

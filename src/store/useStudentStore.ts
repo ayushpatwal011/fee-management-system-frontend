@@ -2,8 +2,9 @@ import { create } from "zustand";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useCoursesStore } from "./useCoursesStore";
+import { api } from "@/api";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const API_URL = api 
 
 export interface Student {
   studentId: number;
