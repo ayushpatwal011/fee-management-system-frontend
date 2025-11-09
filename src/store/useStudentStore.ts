@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useCoursesStore } from "./useCoursesStore";
 import { api } from "@/api";
 
-const API_URL = api 
+  
 
 export interface Student {
   studentId: number;
@@ -43,7 +43,7 @@ export const useStudentStore = create<StudentStore>((set, get) => ({
   fetchStudents: async () => {
     try {
       set({ loading: true });
-      const res = await axios.get(`${API_URL}/students`);
+      const res = await axios.get(`${ api}/students`);
       let data = res.data.data || res.data;
 
       // 🔹 Get all courses from course store
@@ -80,7 +80,7 @@ export const useStudentStore = create<StudentStore>((set, get) => ({
   addStudent: async (data) => {
     try {
       set({ loading: true });
-      const res = await axios.post(`${API_URL}/students`, data);
+      const res = await axios.post(`${ api}/students`, data);
       let newStudent = res.data.data || res.data;
 
       // Add course name using course store
@@ -106,7 +106,7 @@ export const useStudentStore = create<StudentStore>((set, get) => ({
   updateStudent: async (id, data) => {
     try {
       set({ loading: true });
-      const res = await axios.put(`${API_URL}/students/${id}`, data);
+      const res = await axios.put(`${ api}/students/${id}`, data);
       const updatedData = res.data.data || res.data;
 
       const { courses } = useCoursesStore.getState();
@@ -160,7 +160,7 @@ export const useStudentStore = create<StudentStore>((set, get) => ({
   deleteStudent: async (id) => {
     try {
       set({ loading: true });
-      await axios.delete(`${API_URL}/students/${id}`);
+      await axios.delete(`${ api}/students/${id}`);
 
       const updatedList = get().students.filter((s) => s.studentId !== id);
       const totalPaidFee = updatedList.reduce(

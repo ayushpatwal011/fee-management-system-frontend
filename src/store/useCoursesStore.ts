@@ -28,7 +28,7 @@ interface CourseStore {
 }
 
 // 🔹 API Base URL
-const API_URL = api
+ 
 
 export const useCoursesStore = create<CourseStore>((set, get) => ({
   courses: [],
@@ -40,7 +40,7 @@ export const useCoursesStore = create<CourseStore>((set, get) => ({
   fetchCourses: async () => {
     try {
       set({ loading: true });
-      const res = await axios.get(`${API_URL}/courses`);
+      const res = await axios.get(`${ api}/courses`);
       const courses = res.data.data || res.data;
 
       const totalFee = courses.reduce(
@@ -64,7 +64,7 @@ export const useCoursesStore = create<CourseStore>((set, get) => ({
   // 🔵 Get single course
   getCourseById: async (id) => {
     try {
-      const res = await axios.get(`${API_URL}/courses/${id}`);
+      const res = await axios.get(`${ api}/courses/${id}`);
       return res.data.data || res.data;
     } catch (err: any) {
       console.error("Error fetching course:", err);
@@ -76,7 +76,7 @@ export const useCoursesStore = create<CourseStore>((set, get) => ({
   // 🟡 Add new course
   addCourse: async (data) => {
     try {
-      const res = await axios.post(`${API_URL}/courses`, data);
+      const res = await axios.post(`${ api}/courses`, data);
       const newCourse = res.data.data || res.data;
 
       const updatedCourses = [...get().courses, newCourse];
@@ -99,7 +99,7 @@ export const useCoursesStore = create<CourseStore>((set, get) => ({
   // 🟠 Update existing course
   updateCourse: async (id, data) => {
     try {
-      const res = await axios.put(`${API_URL}/courses/${id}`, data);
+      const res = await axios.put(`${ api}/courses/${id}`, data);
       const updated = res.data.data;
 
       set((state) => ({
@@ -119,7 +119,7 @@ export const useCoursesStore = create<CourseStore>((set, get) => ({
   // 🔴 Delete course
   deleteCourse: async (id) => {
     try {
-      await axios.delete(`${API_URL}/courses/${id}`);
+      await axios.delete(`${ api}/courses/${id}`);
       const updatedCourses = get().courses.filter((c) => c.courseId !== id);
       const updatedTotal = updatedCourses.reduce(
         (sum, c) => sum + (c.feeAmount || 0),
