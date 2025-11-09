@@ -16,7 +16,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 export default function StudentsPage() {
-  const { students, fetchStudents, deleteStudent, loading } = useStudentStore();
+  const { students, fetchStudents, loading } = useStudentStore();
   const [query, setQuery] = useState("");
   const [filtered, setFiltered] = useState(students);
 
