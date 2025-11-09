@@ -12,13 +12,13 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
     <ToastContainer
   position="top-center"
-  autoClose={3000}
+  autoClose={2000}
   closeButton={false}
   theme="light"
   toastStyle={{
     backgroundColor: "black",
     color: "white",
-    fontSize: "1.3rem",
+    fontSize: "1rem",
     borderRadius: "0.3rem",
   }}
 />
