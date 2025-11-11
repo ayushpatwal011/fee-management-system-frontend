@@ -19,7 +19,7 @@ import {
 export default function Dashboard() {
   const { coursesCount } = useCoursesStore();
   const { studentCount, totalPaidFee } = useStudentStore();
-  const { latestPayments, dailyFeesData } = usePaymentStore();
+  const { latestPayments, dailyFeesData , totalPaidAmount } = usePaymentStore();
 
   const { calculateTotalWithStudents } = useCoursesStore();
 const totalSystemFee = calculateTotalWithStudents(); // ✅ correct grand total
@@ -68,7 +68,7 @@ const totalSystemFee = calculateTotalWithStudents(); // ✅ correct grand total
           <CardHeader>
             <CardTitle>Paid Fees</CardTitle>
           </CardHeader>
-          <CardContent className="text-2xl font-semibold">₹{totalPaidFee}</CardContent>
+          <CardContent className="text-2xl font-semibold">₹{totalPaidAmount}</CardContent>
         </Card>
       </div>
 
