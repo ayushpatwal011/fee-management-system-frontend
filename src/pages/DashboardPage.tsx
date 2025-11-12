@@ -18,7 +18,7 @@ import {
 
 export default function Dashboard() {
   const { coursesCount } = useCoursesStore();
-  const { studentCount, totalPaidFee } = useStudentStore();
+  const { studentCount } = useStudentStore();
   const { latestPayments, dailyFeesData , totalPaidAmount } = usePaymentStore();
 
   const { calculateTotalWithStudents } = useCoursesStore();
