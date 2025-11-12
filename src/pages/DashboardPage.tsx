@@ -27,8 +27,8 @@ const totalSystemFee = calculateTotalWithStudents(); // ✅ correct grand total
 
 
   const feeDistribution = [
-    { name: "Paid Fees", value: totalSystemFee },
-    { name: "Pending Fees", value: totalPaidAmount },
+    { name: "Paid Fees", value: totalPaidAmount },
+    { name: "Pending Fees", value: totalSystemFee- totalPaidAmount},
   ];
   const COLORS = ["#3791DB", "#3B3C42"]; // blue + red
 
